@@ -57,12 +57,8 @@ const PomodoroTimer: React.FC = () => {
 
   return (
     <div className="pomodoro-timer">
-      <div className="timer-display">
-        <span className={`timer-mode ${timer.mode}`}>
-          {timer.mode === 'work' ? 'Work' : 'Break'}
-        </span>
-        <span className="timer-value">{formatTime(timer.timeLeft)}</span>
-      </div>
+      <h2>{timer.mode === 'work' ? 'Work Time' : 'Break Time'}</h2>
+      <div className="timer-display">{formatTime(timer.timeLeft)}</div>
       <div className="timer-controls">
         <button onClick={toggleTimer}>
           {timer.isRunning ? 'Pause' : 'Start'}

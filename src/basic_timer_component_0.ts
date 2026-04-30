@@ -7,7 +7,7 @@ interface TimerState {
 }
 
 const PomodoroTimer: React.FC = () => {
-  const [timerState, setTimerState] = useState<TimerState>({
+  const [timer, setTimer] = useState<TimerState>({
     timeLeft: 25 * 60,
     isRunning: false,
     mode: 'work'
@@ -19,16 +19,16 @@ const PomodoroTimer: React.FC = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     
-    if (timerState.isRunning && timerState.timeLeft > 0) {
+    if (timer.isRunning && timer.timeLeft > 0) {
       interval = setInterval(() => {
-        setTimerState(prev => ({
+        setTimer(prev => ({
           ...prev,
           timeLeft: prev.timeLeft - 1
         }));
       }, 1000);
-    } else if (timerState.isRunning && timerState.timeLeft === 0) {
-      // Switch mode when time is up
-      setTimerState(prev => ({
+    } else if (timer.isRunning && timer.timeLeft === 0) {
+      // Switch between work and break modes
+      setTimer(prev => ({
         timeLeft: prev.mode === 'work' ? breakDuration : workDuration,
         isRunning: false,
         mode: prev.mode === 'work' ? 'break' : 'work'
@@ -38,14 +38,14 @@ const PomodoroTimer: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timerState.isRunning, timerState.timeLeft, timerState.mode]);
+  }, [timer.isRunning, timer.timeLeft, timer.mode]);
 
   const toggleTimer = () => {
-    setTimerState(prev => ({ ...prev, isRunning: !prev.isRunning }));
+    setTimer(prev => ({ ...prev, isRunning: !prev.isRunning }));
   };
 
   const resetTimer = () => {
-    setTimerState({
+    setTimer({
       timeLeft: workDuration,
       isRunning: false,
       mode: 'work'
@@ -60,11 +60,11 @@ const PomodoroTimer: React.FC = () => {
 
   return (
     <div className="pomodoro-timer">
-      <h2>{timerState.mode === 'work' ? 'Focus Time' : 'Break Time'}</h2>
-      <div className="timer-display">{formatTime(timerState.timeLeft)}</div>
+      <h2>{timer.mode === 'work' ? 'Work Time' : 'Break Time'}</h2>
+      <div className="timer-display">{formatTime(timer.timeLeft)}</div>
       <div className="timer-controls">
         <button onClick={toggleTimer}>
-          {timerState.isRunning ? 'Pause' : 'Start'}
+          {timer.isRunning ? 'Pause' : 'Start'}
         </button>
         <button onClick={resetTimer}>Reset</button>
       </div>
