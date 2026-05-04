@@ -2,98 +2,64 @@ export interface TimerState {
   timeLeft: number;
   isRunning: boolean;
   isBreak: boolean;
-  cycles: number;
+  pomodoroCount: number;
 }
 
 export interface TimerActions {
   start: () => void;
   pause: () => void;
   reset: () => void;
-  skip: () => void;
+  switchMode: () => void;
 }
 
-export const useTimerLogic = (workDuration: number, breakDuration: number): [TimerState, TimerActions] => {
+export const useTimerLogic = (): [TimerState, TimerActions] => {
   const [state, setState] = React.useState<TimerState>({
-    timeLeft: workDuration,
+    timeLeft: 25 * 60,
     isRunning: false,
     isBreak: false,
-    cycles: 0
+    pomodoroCount: 0
   });
 
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  const start = () => {
-    setState(prev => ({ ...prev, isRunning: true }));
-  };
-
-  const pause = () => {
-    setState(prev => ({ ...prev, isRunning: false }));
-  };
-
+  const start = () => setState(prev => ({ ...prev, isRunning: true }));
+  const pause = () => setState(prev => ({ ...prev, isRunning: false }));
   const reset = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
     setState({
-      timeLeft: workDuration,
+      timeLeft: 25 * 60,
       isRunning: false,
       isBreak: false,
-      cycles: 0
+      pomodoroCount: 0
     });
   };
-
-  const skip = () => {
-    if (state.isBreak) {
-      setState({
-        timeLeft: workDuration,
-        isRunning: false,
-        isBreak: false,
-        cycles: state.cycles
-      });
-    } else {
-      setState({
-        timeLeft: breakDuration,
-        isRunning: false,
-        isBreak: true,
-        cycles: state.cycles + 1
-      });
-    }
+  
+  const switchMode = () => {
+    setState(prev => ({
+      timeLeft: prev.isBreak ? 25 * 60 : 5 * 60,
+      isRunning: false,
+      isBreak: !prev.isBreak,
+      pomodoroCount: prev.isBreak ? prev.pomodoroCount + 1 : prev.pomodoroCount
+    }));
   };
 
   React.useEffect(() => {
-    if (state.isRunning) {
-      timerRef.current = setInterval(() => {
-        setState(prev => {
-          if (prev.timeLeft <= 1) {
-            if (prev.isBreak) {
-              return {
-                timeLeft: workDuration,
-                isRunning: false,
-                isBreak: false,
-                cycles: prev.cycles + 1
-              };
-            } else {
-              return {
-                timeLeft: breakDuration,
-                isRunning: false,
-                isBreak: true,
-                cycles: prev.cycles
-              };
-            }
-          }
-          return { ...prev, timeLeft: prev.timeLeft - 1 };
-        });
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (state.isRunning && state.timeLeft > 0) {
+      interval = setInterval(() => {
+        setState(prev => ({ ...prev, timeLeft: prev.timeLeft - 1 }));
       }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+    } else if (state.timeLeft === 0) {
+      pause();
+      if (state.isBreak) {
+        setState(prev => ({ ...prev, isBreak: false, timeLeft: 25 * 60 }));
+      } else {
+        setState(prev => ({ ...prev, isBreak: true, timeLeft: 5 * 60 }));
       }
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
     };
-  }, [state.isRunning, state.isBreak, state.timeLeft]);
+  }, [state.isRunning, state.timeLeft]);
 
-  return [state, { start, pause, reset, skip }];
+  return [state, { start, pause, reset, switchMode }];
 };
