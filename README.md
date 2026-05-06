@@ -1,29 +1,26 @@
 # pomodoro-desk
 
-A web-based Pomodoro timer application built with React, TypeScript, and Vite. Helps you stay focused with timed work sessions and breaks.
+A sleek, modern Pomodoro timer application built with React, TypeScript, and Vite. Helps you stay focused with customizable work and break sessions.
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/pomodoro-desk.git
+npm create vite@latest pomodoro-desk --template react-ts
 cd pomodoro-desk
-
-# Install dependencies
 npm install
 ```
 
 ## Usage
 
+Start the development server:
 ```bash
-# Start development server
 npm run dev
-
-# Build for production
-npm run build
 ```
 
-The app will be available at http://localhost:5173
+Build for production:
+```bash
+npm run build
+```
 
 ## License
 
