@@ -2,20 +2,24 @@ import { useEffect } from 'react';
 
 export const useAccessibilityImprovements = () => {
   useEffect(() => {
-    // Add ARIA labels to timer controls
-    const timerButtons = document.querySelectorAll('[data-testid="timer-button"]');
-    timerButtons.forEach(button => {
-      button.setAttribute('aria-label', button.textContent || 'Timer control');
+    // Add ARIA labels to timer elements
+    const timerElements = document.querySelectorAll('[data-testid="timer"]');
+    timerElements.forEach(element => {
+      element.setAttribute('aria-label', 'Pomodoro timer');
     });
 
-    // Enable keyboard navigation for timer controls
+    // Add keyboard navigation support
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        (e.target as HTMLElement).click();
+      if (e.key === ' ' || e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (activeElement?.hasAttribute('data-action')) {
+          e.preventDefault();
+          (activeElement as HTMLButtonElement).click();
+        }
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 };

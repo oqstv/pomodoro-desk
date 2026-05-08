@@ -1,18 +1,25 @@
-import { useEffect, useRef } from 'react';
-
-export function useAccessibilityImprovements() {
-  const focusRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+export const addAccessibilityImprovements = () => {
+  const buttons = document.querySelectorAll('button[aria-label]');
+  buttons.forEach(button => {
+    button.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        focusRef.current?.click();
+        e.preventDefault();
+        button.click();
       }
-    };
+    });
+  });
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const timerDisplay = document.getElementById('timer-display');
+  if (timerDisplay) {
+    timerDisplay.setAttribute('aria-live', 'polite');
+    timerDisplay.setAttribute('aria-label', 'Pomodoro timer countdown');
+  }
 
-  return { focusRef };
-}
+  const startButton = document.getElementById('start-button');
+  const stopButton = document.getElementById('stop-button');
+  const resetButton = document.getElementById('reset-button');
+
+  if (startButton) startButton.setAttribute('aria-label', 'Start timer');
+  if (stopButton) stopButton.setAttribute('aria-label', 'Stop timer');
+  if (resetButton) resetButton.setAttribute('aria-label', 'Reset timer');
+};
