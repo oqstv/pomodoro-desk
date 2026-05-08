@@ -1,25 +1,33 @@
-export const addAccessibilityImprovements = () => {
-  const buttons = document.querySelectorAll('button[aria-label]');
-  buttons.forEach(button => {
-    button.addEventListener('keydown', (e) => {
+import { useState, useEffect, useRef } from 'react';
+
+export function useAccessibilityImprovements() {
+  const [isFocused, setIsFocused] = useState(false);
+  const timerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        button.click();
+        setIsFocused(true);
       }
-    });
-  });
+    };
 
-  const timerDisplay = document.getElementById('timer-display');
-  if (timerDisplay) {
-    timerDisplay.setAttribute('aria-live', 'polite');
-    timerDisplay.setAttribute('aria-label', 'Pomodoro timer countdown');
-  }
+    const handleBlur = () => setIsFocused(false);
+    
+    const timerElement = timerRef.current;
+    if (timerElement) {
+      timerElement.addEventListener('keydown', handleKeyDown);
+      timerElement.addEventListener('blur', handleBlur);
+      
+      return () => {
+        timerElement.removeEventListener('keydown', handleKeyDown);
+        timerElement.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, []);
 
-  const startButton = document.getElementById('start-button');
-  const stopButton = document.getElementById('stop-button');
-  const resetButton = document.getElementById('reset-button');
-
-  if (startButton) startButton.setAttribute('aria-label', 'Start timer');
-  if (stopButton) stopButton.setAttribute('aria-label', 'Stop timer');
-  if (resetButton) resetButton.setAttribute('aria-label', 'Reset timer');
-};
+  return {
+    isFocused,
+    timerRef,
+    ariaLabel: isFocused ? "Active timer with keyboard focus" : "Timer control"
+  };
+}

@@ -1,25 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const useAccessibilityImprovements = () => {
-  useEffect(() => {
-    // Add ARIA labels to timer elements
-    const timerElements = document.querySelectorAll('[data-testid="timer"]');
-    timerElements.forEach(element => {
-      element.setAttribute('aria-label', 'Pomodoro timer');
-    });
+  const timerRef = useRef<HTMLDivElement>(null);
 
-    // Add keyboard navigation support
+  useEffect(() => {
+    const timerElement = timerRef.current;
+    if (!timerElement) return;
+
+    timerElement.setAttribute('role', 'timer');
+    timerElement.setAttribute('aria-live', 'polite');
+    timerElement.setAttribute('aria-label', 'Pomodoro timer');
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
-        const activeElement = document.activeElement;
-        if (activeElement?.hasAttribute('data-action')) {
-          e.preventDefault();
-          (activeElement as HTMLButtonElement).click();
-        }
+        e.preventDefault();
+        timerElement.focus();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  return timerRef;
 };
