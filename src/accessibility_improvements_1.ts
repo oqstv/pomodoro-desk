@@ -7,10 +7,11 @@ export const useAccessibilityImprovements = () => {
     const timerElement = timerRef.current;
     if (!timerElement) return;
 
+    // Add ARIA labels
     timerElement.setAttribute('role', 'timer');
-    timerElement.setAttribute('aria-live', 'polite');
     timerElement.setAttribute('aria-label', 'Pomodoro timer');
-
+    
+    // Enable keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
@@ -18,8 +19,8 @@ export const useAccessibilityImprovements = () => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return timerRef;
