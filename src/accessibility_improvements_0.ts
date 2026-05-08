@@ -1,33 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
-
-export function useAccessibilityImprovements() {
-  const [isFocused, setIsFocused] = useState(false);
-  const timerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+export const addAccessibilityImprovements = () => {
+  const buttons = document.querySelectorAll('button[aria-label]');
+  buttons.forEach(button => {
+    button.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        setIsFocused(true);
+        e.preventDefault();
+        button.click();
       }
-    };
+    });
+  });
 
-    const handleBlur = () => setIsFocused(false);
-    
-    const timerElement = timerRef.current;
-    if (timerElement) {
-      timerElement.addEventListener('keydown', handleKeyDown);
-      timerElement.addEventListener('blur', handleBlur);
-      
-      return () => {
-        timerElement.removeEventListener('keydown', handleKeyDown);
-        timerElement.removeEventListener('blur', handleBlur);
-      };
+  const timers = document.querySelectorAll('[role="timer"]');
+  timers.forEach(timer => {
+    timer.setAttribute('aria-live', 'polite');
+    timer.setAttribute('aria-atomic', 'true');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.querySelector('[aria-modal="true"]')) {
+      document.querySelector('[aria-modal="true"]')?.setAttribute('aria-hidden', 'true');
     }
-  }, []);
-
-  return {
-    isFocused,
-    timerRef,
-    ariaLabel: isFocused ? "Active timer with keyboard focus" : "Timer control"
-  };
-}
+  });
+};
